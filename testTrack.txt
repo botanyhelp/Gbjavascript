@@ -1,0 +1,148 @@
+
+<html>
+<head>
+<title>
+timer example
+</title>
+<script type="text/javascript">
+//window.onload=addElement;
+//window.onload = displayUrls;
+function ajaxRequest(){
+    var activexmodes=["Msxml2.XMLHTTP", "Microsoft.XMLHTTP"] ;
+    if (window.ActiveXObject){ 
+        for (var i=0; i<activexmodes.length; i++){
+            try{
+               return new ActiveXObject(activexmodes[i]);
+            }
+            catch(e){
+                //miss error
+            }
+        }
+    } else if (window.XMLHttpRequest) {
+        return new XMLHttpRequest();
+    } else {
+        return false;
+    }
+}
+
+var getJsonRequest=new ajaxRequest();
+getJsonRequest.onreadystatechange=function(){
+ if (getJsonRequest.readyState==4){
+    if (getJsonRequest.status==200 || window.location.href.indexOf("http")==-1){
+    var jsonData=eval("("+getJsonRequest.responseText+")");
+    var enhancerEntries=jsonData.items;
+    var referrer = document.referrer;
+    //get the referrer...which will hold the currently-being-viewed-sequence
+    // in a form like chr19:58446412-58447549:
+    var decodedReferrer = decodeURI(referrer);
+    //parse out the currently-being-viewed-sequence from the URL string:
+    decodedReferrer = referrer.replace(/%2C/g, "");
+    decodedReferrer = decodedReferrer.replace(/%3A/g, ":");
+    decodedReferrer = decodedReferrer.replace(/.*position=/g, "");
+    decodedReferrer = decodedReferrer.replace(/.hgt.positionInput.*/g, "");
+    //parse out the start sequence point of the currently-being-viewed-sequence:
+    var startBase = decodedReferrer.replace(/.*:/g, "");
+    startBase = startBase.replace(/-.*/g, "");
+    var startBaseInt = parseInt(startBase);
+    //look 1megabase to the left of the leftmost-currently-viewable base
+    startBaseInt -= 1000000;
+    //parse out the end sequence point of the currently-being-viewed-sequence:
+    var endBase = decodedReferrer.replace(/.*-/g, "");
+    var endBaseInt = parseInt(endBase);
+    //look 1megabase to the right of the rightmost-currently-viewable base
+    endBaseInt += 1000000;
+    //parse out the chromosome being viewed:
+    currentChr = decodedReferrer.replace(/:.*/g, "");
+    var output='';
+
+    if(enhancerEntries.length>0){
+        //output+=enhancerEntries.length;
+        output+='Elements that tested positive for enhancer activity within 1 megabase of the sequence you were just viewing (mm9-';
+        //output += decodedReferrer;
+        output += currentChr;
+        output += ':';
+        output += startBase;
+        output += '-';
+        output += endBase;
+        output += ') have downloadable datasets: <ul>';
+    }
+    //this for-if-if looks at each JSON entry to see if the entry relates to  
+    // a dataset nearby the currently-being-viewed sequence.  If so, it 
+    // presents a link to that dataset.  
+    for (var i=0; i<enhancerEntries.length; i++){
+       if( currentChr == enhancerEntries[i].chr) {
+           if((enhancerEntries[i].start > startBaseInt && enhancerEntries[i].start < endBaseInt ) ||(enhancerEntries[i].end > startBaseInt  && enhancerEntries[i].end < endBaseInt ) || (enhancerEntries[i].start < startBaseInt  && enhancerEntries[i].end > startBaseInt) || (enhancerEntries[i].start < endBaseInt  && enhancerEntries[i].end > endBaseInt )) {
+               output+='<li>';
+               output+='<a href="'+enhancerEntries[i].url+'">';
+               output+=enhancerEntries[i].url;
+               output+='</a>';
+               output+=' (positive at ';
+               output+= enhancerEntries[i].chr;
+               output+=':';
+               output+= enhancerEntries[i].start;
+               output+='-';
+               output+= enhancerEntries[i].end;
+               output+=')';
+               if(enhancerEntries[i].genes !== undefined){
+                   for (var j=0; j<enhancerEntries[i].genes.length; j++){
+                       if(j==0){
+                           output+=' Genes found nearby this enhancer (within one megabase) include: ';
+                       }
+                       output+=enhancerEntries[i].genes[j]; 
+                       output+=', ';
+                   }
+               }
+               output+='</li>';
+           }
+       }
+    }
+   output+='</ul>';
+   output+='<a href="https://enhancer.lbl.gov/aboutproject_n.html">Enhancer Project</a>';
+   output+='<br>';
+   output+='<a href="https://www.facebase.org/node/153">Facebase Project</a>';
+   output+='<br>';
+   output+='<a href="https://www.facebase.org/node/215">All '
+//   output+=enhancerEntries.length;
+   output+='enhancer datasets</a>';
+   document.getElementById("result").innerHTML=output;
+  }
+  else{
+   alert("An error has occured making the request");
+  }
+ }
+}
+
+getJsonRequest.open("GET", "http://genomebrowser.facebase.org/trash/enhancers.json", true);
+getJsonRequest.send(null);
+</script>
+</head>
+<body>
+<H2>Description</H2>
+<P>
+summary... 
+
+<div id="result"> </div>
+
+<H2>Methods</H2>
+<P>
+description of the methods...
+
+<H2>Verification</H2>
+<P>
+description of the methods used to verify the data.
+
+
+<H2>Credits</H2>
+<P>
+Replace this text with a list of the individuals 
+and/or organizations who contributed to the collection
+and analysis of the data.
+
+<H2>References</H2>
+<P>
+Replace this text with a list of relevant literature
+references and/or websites that provide background
+or supporting information about the data.
+</body>
+</html>
+
