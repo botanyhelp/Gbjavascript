@@ -1,0 +1,9 @@
+This HTML/Javascript file can be used as dynamic documentation with a local track on the UCSC genome browser at genome.ucsc.edu.  The javascript makes an AJAX request to fetch a JSON formatted data file, which it parses and uses to manage the display of the documentation for the local track.  Very large local track files that span wide areas of the genome may want the documentation to change depending on where the current genome browser visitor is on the genome.  This experimental Javascript achieves that by finding the location being viewed, finding the interesting locations (via AJAX fetch of JSON datafile), and dynamically displaying the documentation that is relevant.  
+
+Related files are:
+
+webScraper5.py___a python program that writes the json file that the Javascript is requesting.  
+
+enhancers.json___the json file consumed when the javascript runs successfully
+
+mcf172.html___an example of the target HTML targeted by the webscraper python
